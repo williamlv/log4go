@@ -5,6 +5,7 @@ package log4go
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -172,7 +173,13 @@ func (w *FileLogWriter) intRotate() error {
 			}
 		}
 	}
-
+	inFName := w.filename
+	fName := filepath.Base(inFName)
+	folderName := inFName[:len(inFName)-len(fName)]
+	_, err := os.Stat(folderName)
+	if os.IsNotExist(err) {
+		os.MkdirAll(folderName, os.ModePerm)
+	}
 	// Open the log file
 	fd, err := os.OpenFile(w.filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0660)
 	if err != nil {
